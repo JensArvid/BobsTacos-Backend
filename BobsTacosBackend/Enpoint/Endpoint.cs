@@ -1,5 +1,6 @@
 ﻿using BobsTacosBackend.Models;
 using BobsTacosBackend.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BobsTacosBackend.Enpoint
@@ -43,7 +44,8 @@ namespace BobsTacosBackend.Enpoint
                 return Results.NotFound($"MenuItem with ID {id} not found.");
             }
         }
-
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public static async Task<IResult> DeleteMenuItem(IRepository repository, int id)
@@ -51,7 +53,8 @@ namespace BobsTacosBackend.Enpoint
             await repository.DeleteMenuItem(id);
             return Results.NoContent();
         }
-
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public static async Task<IResult> UpdateMenuItem(IRepository repository, int id, MenuItem menuItem)
@@ -60,7 +63,8 @@ namespace BobsTacosBackend.Enpoint
             await repository.UpdateMenuItem(menuItem);
             return Results.NoContent();
         }
-
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public static async Task<IResult> CreateMenuItem(IRepository repository, MenuItem menuItem)
         {

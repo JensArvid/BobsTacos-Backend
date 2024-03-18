@@ -1,27 +1,24 @@
 ﻿using BobsTacosBackend.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Sockets;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace BobsTacosBackend.Data
 {
-    public class DatabaseContext : DbContext
+    public class DatabaseContext : IdentityDbContext<ApplicationUser>
     {
 
-        private string _connectionString;
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {
             var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-            _connectionString = configuration.GetValue<string>("ConnectionStrings:DefaultConnectionString")!;
-            this.Database.EnsureCreated();
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseNpgsql(_connectionString);
+           
+            Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<MenuItem>().HasData(
                new MenuItem { Id = 1, Name = "BobsTaco", Price = 4.99f, Rating = 5, FoodType = "Taco", Description = "test", deliverytime = 30 });
