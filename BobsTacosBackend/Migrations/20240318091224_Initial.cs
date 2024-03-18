@@ -18,12 +18,21 @@ namespace BobsTacosBackend.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    Cost = table.Column<int>(type: "integer", nullable: false)
+                    Price = table.Column<float>(type: "real", nullable: false),
+                    Rating = table.Column<int>(type: "integer", nullable: false),
+                    FoodType = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    deliverytime = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MenuItems", x => x.Id);
                 });
+
+            migrationBuilder.InsertData(
+                table: "MenuItems",
+                columns: new[] { "Id", "Description", "FoodType", "Name", "Price", "Rating", "deliverytime" },
+                values: new object[] { 1, "test", "Taco", "BobsTaco", 4.99f, 5, 30 });
         }
 
         /// <inheritdoc />

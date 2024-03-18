@@ -1,4 +1,5 @@
-﻿using BobsTacosBackend.Repositories;
+﻿using BobsTacosBackend.Models;
+using BobsTacosBackend.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BobsTacosBackend.Enpoint
@@ -12,7 +13,11 @@ namespace BobsTacosBackend.Enpoint
 
             MenuItemGroup.MapGet("/MenuItems", GetMenuItems);
             MenuItemGroup.MapGet("/MenuItems/{id}", GetMenuItemsById);
+            MenuItemGroup.MapDelete("/MenuItems/{id}", DeleteMenuItem);
+            MenuItemGroup.MapPut("/MenuItems/{id}", UpdateMenuItem);
             MenuItemGroup.MapPost("/MenuItems", CreateMenuItem);
+
+
         }
 
 
@@ -27,7 +32,7 @@ namespace BobsTacosBackend.Enpoint
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public static async Task<IResult> GetMenuItemsById(IRepository repository, int id)
         {
-            var menuitems = await repository.GetMenuItemsById(id);
+            var menuitems = await repository.GetMenuItemById(id);
 
             if (menuitems != null)
             {
@@ -39,24 +44,31 @@ namespace BobsTacosBackend.Enpoint
             }
         }
 
-
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public static async Task<IResult> CreateMenuItem(IRepository repository, MenuItemDto createPatientDto)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public static async Task<IResult> DeleteMenuItem(IRepository repository, int id)
         {
-            var createdmenuitem = await repository.CreatePatient(createPatientDto);
-
-            if (createdmenuitem != null)
-            {
-                return TypedResults.Ok(createdmenuitem);
-            }
-            else
-            {
-                return Results.BadRequest("Failed to create the MenuItem.");
-            }
+            await repository.DeleteMenuItem(id);
+            return Results.NoContent();
         }
 
-        
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public static async Task<IResult> UpdateMenuItem(IRepository repository, int id, MenuItem menuItem)
+        {
+            menuItem.Id = id;
+            await repository.UpdateMenuItem(menuItem);
+            return Results.NoContent();
+        }
+
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public static async Task<IResult> CreateMenuItem(IRepository repository, MenuItem menuItem)
+        {
+            await repository.CreateMenuItem(menuItem);
+            return Results.Created($"/MenuItems/{menuItem.Id}", menuItem);
+        }
+
+
     }
 
 }

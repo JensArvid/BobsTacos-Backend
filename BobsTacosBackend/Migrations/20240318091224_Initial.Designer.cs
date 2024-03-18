@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace BobsTacosBackend.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
-    [Migration("20240315140106_Initial")]
+    [DbContext(typeof(DatabaseContext))]
+    [Migration("20240318091224_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -32,16 +32,42 @@ namespace BobsTacosBackend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Cost")
-                        .HasColumnType("integer");
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FoodType")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<float>("Price")
+                        .HasColumnType("real");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("deliverytime")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.ToTable("MenuItems");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "test",
+                            FoodType = "Taco",
+                            Name = "BobsTaco",
+                            Price = 4.99f,
+                            Rating = 5,
+                            deliverytime = 30
+                        });
                 });
 #pragma warning restore 612, 618
         }

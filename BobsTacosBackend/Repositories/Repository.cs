@@ -1,5 +1,6 @@
 ﻿using BobsTacosBackend.Data;
 using BobsTacosBackend.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BobsTacosBackend.Repositories
 {
@@ -10,19 +11,41 @@ namespace BobsTacosBackend.Repositories
         {
             _databaseContext = db;
         }
-        public Task<MenuItemDto> CreateMenuItem(MenuItemDto menuItemDto)
+
+        public async Task<MenuItem> GetMenuItemById(int id)
         {
-            throw new NotImplementedException();
+            return await _databaseContext.MenuItems.FindAsync(id);
         }
 
-        public Task<MenuItem> GetMenuItemById(int id)
+        public async Task<IEnumerable<MenuItem>> GetMenuItems()
         {
-            throw new NotImplementedException();
+            return await _databaseContext.MenuItems.ToListAsync();
         }
 
-        public Task<IEnumerable<MenuItem>> GetMenuItems()
+        public async Task DeleteMenuItem(int id)
         {
-            throw new NotImplementedException();
+            var menuItem = await _databaseContext.MenuItems.FindAsync(id);
+            if (menuItem != null)
+            {
+                _databaseContext.MenuItems.Remove(menuItem);
+                await _databaseContext.SaveChangesAsync();
+            }
         }
+
+
+
+        public async Task UpdateMenuItem(MenuItem menuItem)
+        {
+            _databaseContext.MenuItems.Update(menuItem);
+            await _databaseContext.SaveChangesAsync();
+        }
+
+        public async Task CreateMenuItem(MenuItem menuItem)
+        {
+            await _databaseContext.MenuItems.AddAsync(menuItem);
+            await _databaseContext.SaveChangesAsync();
+        }
+
+
     }
 }

@@ -7,8 +7,9 @@ namespace BobsTacosBackend.Repositories
 
         Task<IEnumerable<MenuItem>> GetMenuItems();
         Task<MenuItem> GetMenuItemById(int id);
-        Task<MenuItemDto> CreateMenuItem(MenuItemDto menuItemDto);
+      Task DeleteMenuItem(int id);
+        Task UpdateMenuItem(MenuItem menuItem);
 
-
+        Task CreateMenuItem(MenuItem menuItem);
     }
 }

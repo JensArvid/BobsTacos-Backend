@@ -2,8 +2,10 @@
 {
     public class MenuItemDto
     {
-        public string Name { get; set; }
 
-        public int Cost { get; set; }
+        public float Price { get; set; }
+
+        public int Rating { get; set; }
+        public int deliverytime { get; set; }
     }
 }
