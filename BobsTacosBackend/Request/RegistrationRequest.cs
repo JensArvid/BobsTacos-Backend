@@ -6,6 +6,12 @@ namespace BobsTacosBackend.Request
     public class RegistrationRequest
     {
         [Required]
+        public string firstName { get; set; }
+
+        [Required]
+        public string lastName { get; set; }
+
+        [Required]
         public string? Email { get; set; }
 
         [Required]

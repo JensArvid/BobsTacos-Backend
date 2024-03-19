@@ -59,7 +59,7 @@ namespace BobsTacosBackend.Enpoint
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public static async Task<IResult> UpdateMenuItem(IRepository repository, int id, MenuItem menuItem)
         {
-            menuItem.Id = id;
+            menuItem.id = id;
             await repository.UpdateMenuItem(menuItem);
             return Results.NoContent();
         }
@@ -69,7 +69,7 @@ namespace BobsTacosBackend.Enpoint
         public static async Task<IResult> CreateMenuItem(IRepository repository, MenuItem menuItem)
         {
             await repository.CreateMenuItem(menuItem);
-            return Results.Created($"/MenuItems/{menuItem.Id}", menuItem);
+            return Results.Created($"/MenuItems/{menuItem.id}", menuItem);
         }
 
 
