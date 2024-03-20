@@ -1,22 +1,21 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System;
+using System.Diagnostics;
+using System.Text;
+using System.Text.Json.Serialization;
 using BobsTacosBackend.Data;
 using BobsTacosBackend.Enpoint;
 using BobsTacosBackend.Models;
 using BobsTacosBackend.Repositories;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using System;
-using System.Diagnostics;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using BobsTacosBackend.Controllers;
 using BobsTacosBackend.Services;
+using Microsoft.AspNetCore.Mvc.ApiExplorer; // Import this namespace
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -106,6 +105,15 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost3000",
+        builder => builder.WithOrigins("http://localhost:3000")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -116,13 +124,15 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Test API v1");
     });
-   
 }
-app.UseStatusCodePages();
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
+
 
 app.UseHttpsRedirection();
+app.UseStatusCodePages();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseCors("AllowLocalhost3000"); // Enable CORS middleware
 app.ConfigureMenuItemEndpoint();
+app.MapControllers();
 app.Run();

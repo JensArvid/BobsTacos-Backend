@@ -37,13 +37,20 @@ namespace BobsTacosBackend.Controllers
             }
 
             var result = await _userManager.CreateAsync(
-                new ApplicationUser { UserName = request.Username, Email = request.Email, Role = request.Role },
+                new ApplicationUser
+                {
+                    FirstName = request.firstName, // Add firstName to ApplicationUser
+                    LastName = request.lastName,   // Add lastName to ApplicationUser
+                    UserName = request.Username,
+                    Email = request.Email,
+                    Role = request.Role
+                },
                 request.Password!
             );
 
             if (result.Succeeded)
             {
-                request.Password = "";
+                request.Password = ""; // Remove the password from the response for security reasons
                 return CreatedAtAction(nameof(Register), new { email = request.Email, role = Role.User }, request);
             }
 
@@ -93,8 +100,11 @@ namespace BobsTacosBackend.Controllers
             {
                 Username = userInDb.UserName,
                 Email = userInDb.Email,
+                FirstName = userInDb.FirstName, // Add first name to the response
+                LastName = userInDb.LastName,   // Add last name to the response
                 Token = accessToken,
             });
         }
+
     }
 }
