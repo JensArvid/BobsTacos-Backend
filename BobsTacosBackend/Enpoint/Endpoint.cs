@@ -12,38 +12,69 @@ namespace BobsTacosBackend.Enpoint
         {
             var MenuItemGroup = app.MapGroup("MenuItem");
 
-            MenuItemGroup.MapGet("/MenuItems", GetMenuItems);
-            MenuItemGroup.MapGet("/MenuItems/{id}", GetMenuItemsById);
-            MenuItemGroup.MapDelete("/MenuItems/{id}", DeleteMenuItem);
-            MenuItemGroup.MapPut("/MenuItems/{id}", UpdateMenuItem);
-            MenuItemGroup.MapPost("/MenuItems", CreateMenuItem);
-
+            MenuItemGroup.MapGet("/", GetMenuItems);
+            MenuItemGroup.MapGet("/{id}/", GetMenuItemsById);
+            MenuItemGroup.MapDelete("/delete/{id}", DeleteMenuItem);
+            MenuItemGroup.MapPut("/put/{id}", UpdateMenuItem);
+            MenuItemGroup.MapPost("/post/", CreateMenuItem);
 
         }
 
 
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public static async Task<IResult> GetMenuItems(IRepository repository)
+        public static async Task<IEnumerable<MenuDto>> GetMenuItems(IRepository repository)
         {
-            var menuitems = await repository.GetMenuItems();
+            var menuItems = await repository.GetMenuItems();
+            var menuDtos = new List<MenuDto>();
 
-            return TypedResults.Ok(menuitems);
+            foreach (var menuItem in menuItems)
+            {
+                var menuDto = new MenuDto
+                {
+                    id = menuItem.id,
+                    name = menuItem.name,
+                    price = menuItem.price,
+                    rating = menuItem.rating,
+                    foodType = menuItem.foodType,
+                    description = menuItem.description,
+                    deliveryTime = menuItem.deliveryTime,
+                    image = menuItem.image
+                };
+
+                menuDtos.Add(menuDto);
+            }
+
+            return menuDtos;
         }
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public static async Task<IResult> GetMenuItemsById(IRepository repository, int id)
         {
-            var menuitems = await repository.GetMenuItemById(id);
+            var menuItem = await repository.GetMenuItemById(id);
 
-            if (menuitems != null)
+            if (menuItem != null)
             {
-                return TypedResults.Ok(menuitems);
+                var menuDto = new MenuDto
+                {
+                    id = menuItem.id,
+                    name = menuItem.name,
+                    price = menuItem.price,
+                    rating = menuItem.rating,
+                    foodType = menuItem.foodType,
+                    description = menuItem.description,
+                    deliveryTime = menuItem.deliveryTime,
+                    image = menuItem.image
+                };
+
+                return TypedResults.Ok(menuDto);
             }
             else
             {
                 return Results.NotFound($"MenuItem with ID {id} not found.");
             }
         }
+
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -57,20 +88,53 @@ namespace BobsTacosBackend.Enpoint
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public static async Task<IResult> UpdateMenuItem(IRepository repository, int id, MenuItem menuItem)
+        public static async Task<IResult> UpdateMenuItem(IRepository repository, int id, MenuDto menuDto)
         {
-            menuItem.id = id;
-            await repository.UpdateMenuItem(menuItem);
+            var existingMenuItem = await repository.GetMenuItemById(id);
+            if (existingMenuItem == null)
+            {
+                return Results.NotFound($"MenuItem with ID {id} not found.");
+            }
+
+            // Update the existing menu item with data from the DTO
+            existingMenuItem.name = menuDto.name;
+            existingMenuItem.price = menuDto.price;
+            existingMenuItem.rating = menuDto.rating;
+            existingMenuItem.foodType = menuDto.foodType;
+            existingMenuItem.description = menuDto.description;
+            existingMenuItem.deliveryTime = menuDto.deliveryTime;
+            existingMenuItem.image = menuDto.image;
+
+            // Call repository method to update the menu item
+            await repository.UpdateMenuItem(existingMenuItem);
+
             return Results.NoContent();
         }
+
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public static async Task<IResult> CreateMenuItem(IRepository repository, MenuItem menuItem)
+        public static async Task<IResult> CreateMenuItem(IRepository repository, MenuDto menuDto)
         {
+            // Map the MenuDto to a MenuItem entity
+            var menuItem = new MenuItem
+            {
+                id = menuDto.id,
+                name = menuDto.name,
+                price = menuDto.price,
+                rating = menuDto.rating,
+                foodType = menuDto.foodType,
+                description = menuDto.description,
+                deliveryTime = menuDto.deliveryTime,
+                image = menuDto.image
+            };
+
+            // Call the repository method to create the menu item
             await repository.CreateMenuItem(menuItem);
+
             return Results.Created($"/MenuItems/{menuItem.id}", menuItem);
         }
+
 
 
     }

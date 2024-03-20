@@ -1,29 +1,39 @@
 ﻿using BobsTacosBackend.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace BobsTacosBackend.Data
 {
-    public class DatabaseContext : IdentityUserContext<ApplicationUser>
+    public class DatabaseContext : IdentityDbContext<ApplicationUser>
     {
         public DatabaseContext(DbContextOptions<DatabaseContext> options)
             : base(options)
         {
-
         }
 
         public DbSet<MenuItem> MenuItems { get; set; }
+        public DbSet<Wishlist> Wishlists { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<ApplicationUser>()
+            .HasMany(u => u.FavoriteMenuItems)
+            .WithMany(m => m.Users)
+            .UsingEntity(j => j.ToTable("UserFavoriteMenuItems"));
 
-            modelBuilder.Entity<IdentityUserLogin<string>>()
-                .HasKey(ul => new { ul.UserId, ul.LoginProvider, ul.ProviderKey });
 
-            modelBuilder.Entity<IdentityUserToken<string>>()
-                .HasKey(ut => new { ut.UserId, ut.LoginProvider, ut.Name });
+            // Customize Identity table names
+            modelBuilder.Entity<ApplicationUser>().ToTable("Users");
+            modelBuilder.Entity<IdentityRole>().ToTable("Roles");
+            modelBuilder.Entity<IdentityUserRole<string>>().ToTable("UserRoles")
+                .HasKey(ur => new { ur.UserId, ur.RoleId }); // Define primary key
+
+            modelBuilder.Entity<IdentityUserClaim<string>>().ToTable("UserClaims");
+            modelBuilder.Entity<IdentityUserLogin<string>>().ToTable("UserLogins");
+            modelBuilder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaims");
+            modelBuilder.Entity<IdentityUserToken<string>>().ToTable("UserTokens");
 
             modelBuilder.Entity<MenuItem>().HasData(
                 new MenuItem
