@@ -20,47 +20,61 @@ namespace BobsTacosBackend.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Wishlist>> CreateWishlistForUser(string userId, int menuItemId)
+        public async Task<ActionResult<WishlistDto>> CreateWishlistForUser([FromBody] CreateWishlistRequest request)
         {
             try
             {
-                // Find the user by ID
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (string.IsNullOrEmpty(request.UserId) || request.MenuItemId <= 0)
+                {
+                    return BadRequest("Invalid request parameters");
+                }
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == request.UserId);
                 if (user == null)
                 {
                     return NotFound("User not found");
                 }
 
-                // Find the menu item by ID
-                var menuItem = await _context.MenuItems.FindAsync(menuItemId);
+                var menuItem = await _context.MenuItems.FindAsync(request.MenuItemId);
                 if (menuItem == null)
                 {
                     return NotFound("Menu item not found");
                 }
 
-                // Create a new wishlist for the user
                 var wishlist = new Wishlist
                 {
-                    UserId = userId,
-                    // You can add other properties of the wishlist here if needed
+                    UserId = request.UserId
                 };
 
-                // Associate the menu item with the wishlist
                 wishlist.MenuItems.Add(menuItem);
-
-                // Add the wishlist to the database context
                 _context.Wishlists.Add(wishlist);
-
-                // Save changes to the database
                 await _context.SaveChangesAsync();
 
-                return Ok("Wishlist created successfully");
+                var wishlistDto = new WishlistDto
+                {
+                    Id = wishlist.Id,
+                    UserId = wishlist.UserId,
+                    MenuItems = wishlist.MenuItems.Select(m => new MenuItemDto
+                    {
+                        Id = m.id,
+                        Name = m.name,
+                        Price = m.price,
+                        Rating = m.rating,
+                        FoodType = m.foodType,
+                        Description = m.description,
+                        DeliveryTime = m.deliveryTime,
+                        Image = m.image
+                    }).ToList()
+                };
+
+                return CreatedAtAction(nameof(GetWishlist), new { id = wishlistDto.Id }, wishlistDto);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WishlistDto>>> GetWishlists()
@@ -130,5 +144,10 @@ namespace BobsTacosBackend.Controllers
             return wishlistDto;
         }
 
+    }
+    public class CreateWishlistRequest
+    {
+        public string UserId { get; set; }
+        public int MenuItemId { get; set; }
     }
 }

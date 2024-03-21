@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BobsTacosBackend.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240320152009_first")]
+    [Migration("20240321125014_first")]
     partial class first
     {
         /// <inheritdoc />
