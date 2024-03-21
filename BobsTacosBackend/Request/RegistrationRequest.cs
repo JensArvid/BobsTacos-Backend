@@ -5,6 +5,7 @@ namespace BobsTacosBackend.Request
 
     public class RegistrationRequest
     {
+
         [Required]
         public string firstName { get; set; }
 

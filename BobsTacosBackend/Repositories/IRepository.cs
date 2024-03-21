@@ -11,5 +11,7 @@ namespace BobsTacosBackend.Repositories
         Task UpdateMenuItem(MenuItem menuItem);
 
         Task CreateMenuItem(MenuItem menuItem);
+
+        // Wishlist itmes
     }
 }

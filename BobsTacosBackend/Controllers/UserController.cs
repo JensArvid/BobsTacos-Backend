@@ -39,8 +39,8 @@ namespace BobsTacosBackend.Controllers
             var result = await _userManager.CreateAsync(
                 new ApplicationUser
                 {
-                    FirstName = request.firstName, // Add firstName to ApplicationUser
-                    LastName = request.lastName,   // Add lastName to ApplicationUser
+                    FirstName = request.firstName,
+                    LastName = request.lastName,
                     UserName = request.Username,
                     Email = request.Email,
                     Role = request.Role
@@ -50,8 +50,20 @@ namespace BobsTacosBackend.Controllers
 
             if (result.Succeeded)
             {
-                request.Password = ""; // Remove the password from the response for security reasons
-                return CreatedAtAction(nameof(Register), new { email = request.Email, role = Role.User }, request);
+                // Retrieve the newly created user
+                var user = await _userManager.FindByEmailAsync(request.Email);
+
+                // Construct the response object including the user ID
+                var response = new
+                {
+                    Id = user.Id,  // Include the user ID in the response
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    Role = user.Role
+                };
+
+                return CreatedAtAction(nameof(Register), response);
             }
 
             foreach (var error in result.Errors)
@@ -61,6 +73,8 @@ namespace BobsTacosBackend.Controllers
 
             return BadRequest(ModelState);
         }
+
+
 
 
         [HttpPost]
@@ -98,10 +112,11 @@ namespace BobsTacosBackend.Controllers
 
             return Ok(new AuthResponse
             {
+                Id = userInDb.Id,  // Include the user ID in the response
                 Username = userInDb.UserName,
                 Email = userInDb.Email,
-                FirstName = userInDb.FirstName, // Add first name to the response
-                LastName = userInDb.LastName,   // Add last name to the response
+                FirstName = userInDb.FirstName,
+                LastName = userInDb.LastName,
                 Token = accessToken,
             });
         }

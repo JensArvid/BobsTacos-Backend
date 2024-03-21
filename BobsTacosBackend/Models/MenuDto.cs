@@ -1,6 +1,6 @@
 ﻿namespace BobsTacosBackend.Models
 {
-    public class MenuItem
+    public class MenuDto
     {
         public int id { get; set; }
         public string name { get; set; }
@@ -13,7 +13,8 @@
 
         public string description { get; set; }
         public int deliveryTime { get; set; }
-        public string image {  get; set; }
-        public ICollection<ApplicationUser> Users { get; set; }
+        public string image { get; set; }
     }
 }
+
+
